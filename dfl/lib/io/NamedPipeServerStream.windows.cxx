@@ -12,16 +12,16 @@ namespace {
     const auto pipeName = std::format("\\\\.\\pipe\\{}", name);
 
     HANDLE hPipe = CreateNamedPipeA(
-      pipeName.c_str(),           // pipe name
-      PIPE_ACCESS_DUPLEX,         // read/write access
-      PIPE_TYPE_BYTE |            // byte type pipe
-      PIPE_READMODE_BYTE |        // byte-read mode
-      PIPE_WAIT,                  // blocking mode
-      1,                          // max instances (1 for simplicity)
-      4096,                       // output buffer size
-      4096,                       // input buffer size
-      0,                          // client time-out
-      nullptr                     // default security attribute
+      pipeName.c_str(),
+      PIPE_ACCESS_DUPLEX,
+      PIPE_TYPE_BYTE |
+      PIPE_READMODE_BYTE |
+      PIPE_WAIT,
+      PIPE_UNLIMITED_INSTANCES,
+      4096,
+      4096,
+      0,
+      nullptr
     );
 
     if (hPipe == INVALID_HANDLE_VALUE) {

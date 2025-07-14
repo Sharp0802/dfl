@@ -1,3 +1,5 @@
+#ifdef __unix__
+
 #include "net/NamedPipeClientStream.h"
 
 #include <fcntl.h>
@@ -23,3 +25,5 @@ namespace dfl {
     : NamedPipeStream(name, OpenNamedPipe(name)) {
   }
 }
+
+#endif

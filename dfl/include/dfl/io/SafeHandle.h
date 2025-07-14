@@ -38,10 +38,16 @@ namespace dfl {
       }
     }
 
+    static constexpr SafeHandle Invalid();
+
     [[nodiscard]]
     decltype(_fd) native_handle() const {
       dfl_assert(_fd != InvalidHandle);
       return _fd;
     }
   };
+
+  constexpr SafeHandle SafeHandle::Invalid() {
+    return SafeHandle(InvalidHandle);
+  }
 }

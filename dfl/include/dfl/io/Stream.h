@@ -6,7 +6,7 @@
 #include "Types.h"
 
 namespace dfl {
-  interface Stream : Object {
+  struct Stream : Object {
     virtual ~Stream() = 0;
     virtual bool poll(std::chrono::milliseconds timeout) = 0;
     virtual ssize_t write(std::span<u8> src) = 0;

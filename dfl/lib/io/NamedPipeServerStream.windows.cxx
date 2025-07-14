@@ -2,8 +2,8 @@
 
 #include "net/NamedPipeServerStream.h"
 
-#include <windows.h>
 #include <format>
+#include <windows.h>
 
 #include "io/SafeHandle.h"
 

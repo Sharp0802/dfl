@@ -17,5 +17,8 @@ namespace dfl {
     ssize_t write(std::span<u8> src) override;
     ssize_t read(std::span<u8> dst) override;
     void flush() override;
+
+    [[nodiscard]]
+    const SafeHandle& handle() const { return _handle; }
   };
 }

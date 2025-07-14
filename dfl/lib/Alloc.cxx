@@ -12,10 +12,18 @@ namespace dfl {
       return nullptr;
     }
 
+#ifdef _WIN32
+    return _aligned_malloc(size, align);
+#else
     return std::aligned_alloc(align, size);
+#endif
   }
 
   void free(void *ptr) {
+#ifdef _WIN32
+    _aligned_free(ptr);
+#else
     std::free(ptr);
+#endif
   }
 } // dfl

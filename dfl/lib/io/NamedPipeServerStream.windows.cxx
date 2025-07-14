@@ -8,8 +8,12 @@
 #include "io/SafeHandle.h"
 
 namespace {
+#ifdef CreateNamedPipe
+#undef CreateNamedPipe
+#endif
+
   dfl::SafeHandle CreateNamedPipe(const std::string &name) {
-    const auto pipeName = std::format("\\\\.\\pipe\\{}", name);
+    const auto pipeName = std::format(R"(\\.\pipe\{})", name);
 
     HANDLE hPipe = CreateNamedPipeA(
       pipeName.c_str(),

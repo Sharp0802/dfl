@@ -6,8 +6,8 @@
 #include <windows.h>
 #endif
 
+#include "Object.h"
 #include "Types.h"
-#include "dfl/Object.h"
 
 namespace dfl {
   class SafeHandle final : public Object {
@@ -16,20 +16,20 @@ namespace dfl {
     static constexpr int InvalidHandle = -1;
 #elif _WIN32
     HANDLE _fd;
-    static constexpr int InvalidHandle = INVALID_HANDLE_VALUE;
+    static constexpr LONG_PTR InvalidHandle = -1;
 #endif
 
   public:
-    explicit SafeHandle(const int fd) : _fd(fd) {
+    explicit SafeHandle(decltype(_fd) fd) : _fd(fd) {
     }
 
     SafeHandle(SafeHandle &&other) noexcept {
       _fd = other._fd;
-      other._fd = InvalidHandle;
+      other._fd = reinterpret_cast<decltype(_fd)>(InvalidHandle);
     }
 
     ~SafeHandle() {
-      if (_fd != InvalidHandle) {
+      if (_fd != reinterpret_cast<decltype(_fd)>(InvalidHandle)) {
 #if __unix__
         close(_fd);
 #elif _WIN32
@@ -42,12 +42,13 @@ namespace dfl {
 
     [[nodiscard]]
     decltype(_fd) native_handle() const {
-      dfl_assert(_fd != InvalidHandle);
+      dfl_assert(_fd != reinterpret_cast<decltype(_fd)>(InvalidHandle));
       return _fd;
     }
   };
 
   constexpr SafeHandle SafeHandle::Invalid() {
-    return SafeHandle(InvalidHandle);
+    // ReSharper disable once CppRedundantCastExpression
+    return SafeHandle(reinterpret_cast<decltype(_fd)>(InvalidHandle));
   }
 }

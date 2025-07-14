@@ -1,7 +1,14 @@
 #pragma once
 
 #include <cstdint>
+#include <format>
+#include <iostream>
+#include <print>
 #include <variant>
+
+#ifndef interface
+#define interface struct
+#endif
 
 namespace dfl {
   using u8 = uint8_t;
@@ -25,23 +32,23 @@ namespace dfl {
   using utf32 = char32_t;
 
 
-  template <typename... T>
+  template<typename... T>
   using Enum = std::variant<T...>;
 
-  template <typename... T>
+  template<typename... T>
   struct Match : T... {
     using T::operator()...;
   };
 
-  template <typename... T>
+  template<typename... T>
   Match(T...) -> Match<T...>;
 
-  template<typename T, typename ...Visitor>
-  void match(T&& t, Visitor&&... visitors) {
-    std::visit(Match{ visitors... }, t);
+  template<typename T, typename... Visitor>
+  void match(T &&t, Visitor &&... visitors) {
+    std::visit(Match{visitors...}, t);
   }
 
-  template <typename T, typename E>
+  template<typename T, typename E>
   using Result = Enum<T, E>;
 
   struct None {
@@ -52,6 +59,39 @@ namespace dfl {
 #endif
   };
 
-  template <typename T>
+  template<typename T>
   using Option = Enum<T, None>;
+
+  template<typename T>
+  constexpr void assert(const char *file, int line, T &&cond, const char *msg) {
+    if (!cond) {
+      std::println(std::cerr, "{}:{} assertion failed: {}", file, line, msg);
+      std::abort();
+    }
+  }
+
+#if _DEBUG
+#ifndef dfl_assert
+#define dfl_assert(cond) \
+  if (!(cond)) { \
+    std::println(std::cerr, "{}:{} assertion failed: {}", __FILE__, __LINE__, #cond); \
+    std::abort(); \
+  }
+#endif
+
+#ifndef dfl_warning
+#define dfl_warning(cond, ...) \
+  if (!(cond)) { \
+    std::println(std::cerr, "{}:{} warning: {}", __FILE__, __LINE__, std::format(__VA_ARGS__)); \
+  }
+#endif
+#else
+  // release builds: no-ops
+#ifndef dfl_assert
+    #define dfl_assert(t)        do {} while (false)
+#endif
+#ifndef dfl_warning
+    #define dfl_warning(t, ...)  do {} while (false)
+#endif
+#endif
 }

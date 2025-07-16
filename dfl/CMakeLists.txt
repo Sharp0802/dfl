@@ -4,6 +4,10 @@ file(GLOB_RECURSE SOURCES *.cxx)
 file(GLOB_RECURSE HEADERS *.h)
 
 add_library(dfl STATIC ${SOURCES} ${HEADERS})
+
+install(DIRECTORY "include" DESTINATION ".")
+install(TARGETS dfl ARCHIVE DESTINATION "lib")
+
 target_include_directories(dfl PUBLIC include)
 target_include_directories(dfl PRIVATE include/dfl)
 target_compile_features(dfl PUBLIC cxx_std_23)

@@ -3,7 +3,7 @@
 #include "NamedPipeStream.h"
 
 namespace dfl {
-  class NamedPipeServerStream : public NamedPipeStream {
+  class NamedPipeServerStream final : public NamedPipeStream {
   public:
     explicit NamedPipeServerStream(const std::string &name);
   };

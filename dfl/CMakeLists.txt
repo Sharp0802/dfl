@@ -11,3 +11,9 @@ target_compile_features(dfl PUBLIC cxx_std_23)
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_definitions(dfl PRIVATE -D_DEBUG)
 endif ()
+
+message(STATUS "sizeof(void*) = ${CMAKE_SIZEOF_VOID_P}")
+if (CMAKE_SIZEOF_VOID_P EQUAL 8)
+    # for `cmpxchg16b`
+    target_compile_options(dfl PUBLIC -mcx16)
+endif ()

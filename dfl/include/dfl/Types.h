@@ -62,14 +62,6 @@ namespace dfl {
   template<typename T>
   using Option = Enum<T, None>;
 
-  template<typename T>
-  constexpr void assert(const char *file, int line, T &&cond, const char *msg) {
-    if (!cond) {
-      std::println(std::cerr, "{}:{} assertion failed: {}", file, line, msg);
-      std::abort();
-    }
-  }
-
 #if _DEBUG
 #ifndef dfl_assert
 #define dfl_assert(cond) \

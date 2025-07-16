@@ -3,6 +3,9 @@
 #include <cstdint>
 #include <variant>
 
+#include <iostream>
+#include <print>
+
 #ifndef interface
 #define interface struct
 #endif

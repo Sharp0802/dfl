@@ -1,7 +1,7 @@
 #pragma once
 
-#include "io/SafeHandle.h"
-#include "io/Stream.h"
+#include "dfl/io/SafeHandle.h"
+#include "dfl/io/Stream.h"
 
 namespace dfl {
   class SafeHandleStream : public Stream {

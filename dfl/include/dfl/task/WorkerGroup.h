@@ -3,8 +3,8 @@
 #include <unordered_map>
 #include <vector>
 
-#include "ChaseLevDeque.h"
-#include "Worker.h"
+#include "dfl/task/ChaseLevDeque.h"
+#include "dfl/task/Worker.h"
 
 namespace dfl::task {
   class WorkerGroup {

@@ -1,5 +1,6 @@
 #pragma once
-#include "NamedPipeStream.h"
+
+#include "dfl/net/NamedPipeStream.h"
 
 namespace dfl {
   class NamedPipeClientStream final : public NamedPipeStream {

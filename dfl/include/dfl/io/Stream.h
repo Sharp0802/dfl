@@ -2,8 +2,8 @@
 
 #include <chrono>
 
-#include "Object.h"
-#include "Types.h"
+#include "dfl/Object.h"
+#include "dfl/Types.h"
 
 namespace dfl {
   struct Stream : Object {

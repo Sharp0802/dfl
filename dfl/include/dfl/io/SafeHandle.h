@@ -6,8 +6,8 @@
 #include <windows.h>
 #endif
 
-#include "Object.h"
-#include "Types.h"
+#include "dfl/Object.h"
+#include "dfl/Types.h"
 
 namespace dfl {
   class SafeHandle final : public Object {

@@ -4,8 +4,8 @@
 #include <thread>
 #include <vector>
 
-#include "ChaseLevDeque.h"
-#include "FAAQueue.h"
+#include "dfl/task/ChaseLevDeque.h"
+#include "dfl/task/FAAQueue.h"
 
 namespace dfl::task {
   class WorkerGroup;

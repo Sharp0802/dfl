@@ -6,7 +6,7 @@
 #include <utility>
 #include <variant>
 
-#include "WorkerGroup.h"
+#include "dfl/task/WorkerGroup.h"
 
 namespace dfl::task {
   template<typename T>

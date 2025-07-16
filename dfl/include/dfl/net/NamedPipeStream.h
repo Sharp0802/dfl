@@ -2,7 +2,7 @@
 
 #include <string>
 
-#include "io/SafeHandleStream.h"
+#include "dfl/io/SafeHandleStream.h"
 
 namespace dfl {
   class SafeHandle;

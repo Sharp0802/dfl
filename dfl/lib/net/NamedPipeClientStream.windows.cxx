@@ -9,7 +9,7 @@
 
 namespace {
   dfl::SafeHandle OpenNamedPipe(const std::string &name) {
-    const auto pipeName = std::format("\\\\.\\pipe\\{}", name);
+    const auto pipeName = std::format(R"(\\.\pipe\{})", name);
 
     // Try to open the named pipe
     HANDLE hPipe = CreateFileA(

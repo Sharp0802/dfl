@@ -15,12 +15,12 @@ namespace {
   dfl::SafeHandle CreateNamedPipe(const std::string &name) {
     const auto pipeName = std::format(R"(\\.\pipe\{})", name);
 
-    HANDLE hPipe = CreateNamedPipeA(
+    const HANDLE hPipe = CreateNamedPipeA(
       pipeName.c_str(),
       PIPE_ACCESS_DUPLEX,
       PIPE_TYPE_BYTE |
       PIPE_READMODE_BYTE |
-      PIPE_WAIT,
+      PIPE_NOWAIT,
       PIPE_UNLIMITED_INSTANCES,
       4096,
       4096,
@@ -32,13 +32,6 @@ namespace {
       return dfl::SafeHandle::Invalid();
     }
 
-    // Wait for a client to connect
-    BOOL connected = ConnectNamedPipe(hPipe, nullptr);
-    if (!connected && GetLastError() != ERROR_PIPE_CONNECTED) {
-      CloseHandle(hPipe);
-      return dfl::SafeHandle::Invalid();
-    }
-
     return dfl::SafeHandle(hPipe);
   }
 }
@@ -46,6 +39,17 @@ namespace {
 namespace dfl {
   NamedPipeServerStream::NamedPipeServerStream(const std::string &name)
     : NamedPipeStream(name, CreateNamedPipe(name)) {
+  }
+
+  bool NamedPipeServerStream::wait_for_connection(const std::chrono::milliseconds timeout) {
+    for (const auto begin = std::chrono::high_resolution_clock::now();
+         timeout.count() < 0 || std::chrono::high_resolution_clock::now() - begin < timeout;) {
+      if (ConnectNamedPipe(_handle.native_handle(), nullptr) || GetLastError() == ERROR_PIPE_CONNECTED) {
+        return true;
+      }
+    }
+
+    return false;
   }
 }
 

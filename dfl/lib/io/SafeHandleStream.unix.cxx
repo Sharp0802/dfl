@@ -19,6 +19,8 @@ namespace dfl {
     if (timeout_long > INT_MAX) {
       dfl_warning(timeout_long > INT_MAX, "SafeHandleStream::poll(): timeout is too big");
       timeout_int = INT_MAX;
+    } else if (timeout_long < 0) {
+      timeout_int = INT_MAX;
     }
 
     const auto r = ::poll(&pfd, 1, timeout_int);

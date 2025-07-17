@@ -28,6 +28,11 @@ namespace dfl {
       other._fd = reinterpret_cast<decltype(_fd)>(InvalidHandle);
     }
 
+    SafeHandle& operator=(SafeHandle &&other) noexcept {
+      std::swap(_fd, other._fd);
+      return *this;
+    }
+
     ~SafeHandle() {
       if (_fd != reinterpret_cast<decltype(_fd)>(InvalidHandle)) {
 #if __unix__

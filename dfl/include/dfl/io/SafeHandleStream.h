@@ -5,13 +5,18 @@
 
 namespace dfl {
   class SafeHandleStream : public Stream {
+  protected:
     SafeHandle _handle;
 
-  protected:
     explicit SafeHandleStream(SafeHandle&& handle) : _handle(std::move(handle)) {}
 
   public:
     ~SafeHandleStream() override = default;
+
+    [[nodiscard]]
+    virtual bool operator!() const {
+      return !_handle;
+    }
 
     bool poll(std::chrono::milliseconds timeout) override;
     ssize_t write(std::span<u8> src) override;

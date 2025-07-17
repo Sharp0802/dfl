@@ -41,6 +41,11 @@ namespace dfl {
     static constexpr SafeHandle Invalid();
 
     [[nodiscard]]
+    bool operator!() const {
+      return _fd == reinterpret_cast<decltype(_fd)>(InvalidHandle);
+    }
+
+    [[nodiscard]]
     decltype(_fd) native_handle() const {
       dfl_assert(_fd != reinterpret_cast<decltype(_fd)>(InvalidHandle));
       return _fd;

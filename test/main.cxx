@@ -1,4 +1,7 @@
 #include <iostream>
+#include <mutex>
+#include <queue>
+#include <x86intrin.h>
 #include <bits/ostream.tcc>
 #include <dfl/Types.h>
 
@@ -13,39 +16,50 @@ using namespace dfl;
 #include "dfl/net/NamedPipeClientStream.h"
 #include "dfl/net/NamedPipeServerStream.h"
 
+u64 rdtsc() {
+    unsigned int aux;
+    return __rdtscp(&aux);
+}
+
 void test_named_pipe() {
     std::cout << "--- Running Named Pipe Test ---" << std::endl;
 
-    // Use a unique name for the pipe to avoid conflicts.
-    // In a real test suite, this might be a UUID or based on process ID.
     const std::string pipe_name = "my_dfl_test_pipe";
-    std::atomic<bool> server_ok = false;
-    std::atomic<bool> client_ok = false;
+    std::atomic server_ok = false;
+    std::atomic client_ok = false;
 
-    // Messages to exchange
     const std::string client_msg_str = "Hello from Client!";
     const std::string server_msg_str = "Hello from Server!";
     std::vector<u8> client_msg(client_msg_str.begin(), client_msg_str.end());
     std::vector<u8> server_msg(server_msg_str.begin(), server_msg_str.end());
 
     // --- Server Thread ---
-    std::thread server_thread([&]() {
+    std::thread server_thread([&] {
         try {
             std::cout << "[Server] Creating pipe: " << pipe_name << " and waiting for client..." << std::endl;
             dfl::NamedPipeServerStream server(pipe_name);
+            if (!server) {
+                perror("NamedPipeServerStream()");
+            }
+            server.wait_for_connection(std::chrono::milliseconds(-1));
             std::cout << "[Server] Client connected." << std::endl;
 
             // 1. Read message from client
             std::vector<u8> buffer(client_msg.size());
-            ssize_t bytes_read = server.read(buffer);
+            const ssize_t bytes_read = server.read(buffer);
             std::cout << "[Server] Read " << bytes_read << " bytes." << std::endl;
+            std::cout << "[Server] From client: ";
+            for (const auto ch: buffer) {
+                std::cout << ch;
+            }
+            std::cout << std::endl;
 
             assert(static_cast<size_t>(bytes_read) == client_msg.size());
             assert(buffer == client_msg);
             std::cout << "[Server] Received correct message from client." << std::endl;
 
             // 2. Write response to client
-            ssize_t bytes_written = server.write(server_msg);
+            const ssize_t bytes_written = server.write(server_msg);
             std::cout << "[Server] Wrote " << bytes_written << " bytes." << std::endl;
             assert(static_cast<size_t>(bytes_written) == server_msg.size());
 
@@ -57,24 +71,35 @@ void test_named_pipe() {
     });
 
     // --- Client Thread ---
-    std::thread client_thread([&]() {
+    std::thread client_thread([&] {
+#if __unix__
+        sleep(1);
+#elif _WIN32
+        Sleep(1000);
+#endif
+
         try {
-            // The client constructor will retry a few times, so we don't need
-            // an explicit sleep here, but it's good practice to ensure the
-            // server thread starts first.
             std::cout << "[Client] Attempting to connect to " << pipe_name << std::endl;
-            dfl::NamedPipeClientStream client(pipe_name);
+            NamedPipeClientStream client(pipe_name);
+            if (!client) {
+                perror("NamedPipeClientStream()");
+            }
             std::cout << "[Client] Connected to server." << std::endl;
 
             // 1. Write message to server
-            ssize_t bytes_written = client.write(client_msg);
+            const ssize_t bytes_written = client.write(client_msg);
             std::cout << "[Client] Wrote " << bytes_written << " bytes." << std::endl;
             assert(static_cast<size_t>(bytes_written) == client_msg.size());
 
             // 2. Read response from server
             std::vector<u8> buffer(server_msg.size());
-            ssize_t bytes_read = client.read(buffer);
+            const ssize_t bytes_read = client.read(buffer);
             std::cout << "[Client] Read " << bytes_read << " bytes." << std::endl;
+            std::cout << "[Client] From server: ";
+            for (const auto ch: buffer) {
+                std::cout << ch;
+            }
+            std::cout << std::endl;
 
             assert(static_cast<size_t>(bytes_read) == server_msg.size());
             assert(buffer == server_msg);
@@ -87,16 +112,13 @@ void test_named_pipe() {
         }
     });
 
-    // Wait for both threads to complete
     server_thread.join();
     client_thread.join();
 
-    // Final assertion
     if (server_ok && client_ok) {
         std::cout << "--- Test Passed ---" << std::endl;
     } else {
         std::cout << "--- Test Failed ---" << std::endl;
-        // In a real test framework, this would be a hard failure.
         assert(false && "Test failed. Check logs.");
     }
 }
